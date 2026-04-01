@@ -3617,6 +3617,119 @@
     body.edit-mode .data-table { overflow:visible !important; }
     /* Give the table wrapper overflow:visible so the above-row toolbar is never clipped */
     body.edit-mode .data-table tbody { overflow:visible !important; }
+
+
+  /* ============================================================
+     RESPONSIVE LAYOUT FIX — grids, tables, mobile/tablet
+  ============================================================ */
+
+  /* Fix grid classes: explicit columns instead of auto-fit
+     auto-fit+minmax causes 3+1 orphan rows at intermediate widths */
+  .cards-2 { grid-template-columns: repeat(2, 1fr) !important; }
+  .cards-3 { grid-template-columns: repeat(3, 1fr) !important; }
+  .cards-4 { grid-template-columns: repeat(4, 1fr) !important; }
+  .kpi-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  .service-grid { grid-template-columns: repeat(4, 1fr) !important; }
+
+  /* Table: hide editor ghost columns in view mode */
+  body:not(.edit-mode) .data-table ._th-add,
+  body:not(.edit-mode) .data-table ._th-del { display: none !important; }
+  body:not(.edit-mode) .data-table td[style*="width: 28px"],
+  body:not(.edit-mode) .data-table th[style*="width: 28px"] { display: none !important; }
+
+  /* Table: column widths */
+  .data-table { table-layout: fixed; }
+  .data-table th:nth-child(1), .data-table td:nth-child(1) { width: 42%; }
+  .data-table th:nth-child(2), .data-table td:nth-child(2) { width: 20%; white-space: nowrap; }
+  .data-table th:nth-child(3), .data-table td:nth-child(3) { width: 24%; }
+  .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 14%; white-space: nowrap; }
+  .data-table td { word-break: break-word; }
+
+  /* Nav hamburger button (hidden on desktop) */
+  .nav-hamburger {
+    display: none; background: none; border: 1px solid rgba(36,199,96,0.3);
+    color: var(--green); border-radius: 6px; padding: 6px 10px;
+    cursor: pointer; font-size: 16px; flex-shrink: 0;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  /* TABLET (<=1100px) */
+  @media (max-width: 1100px) {
+    .section { padding: 60px 24px; }
+    .cards-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .service-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .cover-stats { gap: 32px; }
+  }
+
+  /* SMALL TABLET (<=860px) */
+  @media (max-width: 860px) {
+    .section { padding: 48px 20px; }
+    .cards-3 { grid-template-columns: repeat(2, 1fr) !important; }
+    .section-num { font-size: 40px; min-width: 55px; }
+    .section-title { font-size: clamp(22px, 4vw, 34px); }
+    .nav-btn { padding: 5px 7px; font-size: 10px; }
+  }
+
+  /* MOBILE (<=640px) */
+  @media (max-width: 640px) {
+    .section { padding: 36px 16px; }
+    #cover { padding: 24px 16px; min-height: 100svh; }
+
+    .nav-items { display: none; }
+    .nav-hamburger { display: block; }
+    #nav.nav-open .nav-items {
+      display: flex; flex-direction: column;
+      position: fixed; top: 60px; left: 0; right: 0;
+      background: rgba(10,10,10,0.98);
+      border-bottom: 1px solid rgba(36,199,96,0.2);
+      padding: 12px 16px 20px; gap: 4px; z-index: 200;
+    }
+    #nav.nav-open .nav-btn { width: 100%; text-align: left; padding: 10px 14px; font-size: 13px; }
+
+    .cover-stats { gap: 20px; flex-wrap: wrap; }
+    .cover-stat-num { font-size: 30px; }
+    .cover-tag { font-size: 9px; letter-spacing: 2px; }
+
+    .cards-2, .cards-3, .cards-4 { grid-template-columns: 1fr !important; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .service-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+    .section-header { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 32px; }
+    .section-num { font-size: 36px; min-width: auto; }
+    .section-title { font-size: clamp(20px, 5vw, 28px); }
+
+    .card { padding: 20px 16px; }
+    .priority-card { padding: 20px; }
+    .priority-num { font-size: 36px; }
+    .kpi-card { padding: 18px 16px; }
+    .kpi-val { font-size: 24px; }
+
+    [style*="overflow-x: auto"] { -webkit-overflow-scrolling: touch; }
+    .data-table { min-width: 460px; table-layout: auto !important; }
+    .data-table th, .data-table td { padding: 10px 12px; font-size: 12px; }
+
+    .timeline { padding-left: 20px; }
+    .tl-dot { left: -22px; width: 14px; height: 14px; }
+
+    .funnel { flex-direction: column; }
+    .funnel-step { min-width: unset; }
+    .funnel-step::after { content: 'v'; position: absolute; right: auto; left: 50%; bottom: -18px; top: auto; transform: translateX(-50%); font-size: 14px; }
+
+    .rev-bars { height: 140px; gap: 8px; }
+    .rev-bar-val { font-size: 11px; }
+
+    #footer { padding: 32px 16px; }
+    .footer-logo { font-size: 24px; }
+    .footer-meta, .cr-line { font-size: 11px; }
+  }
+
+  /* VERY SMALL (<=380px) */
+  @media (max-width: 380px) {
+    .cover-stat-num { font-size: 24px; }
+    .kpi-val { font-size: 20px; }
+  }
+
   </style></head>
 <body class="" style="">
 <div id="bg-noise"></div>
@@ -3669,6 +3782,7 @@
     <button class="nav-btn" onclick="navScrollTo('s9')">Harmonogram</button>
     <button class="nav-btn" onclick="navScrollTo('s10')">Kontakty</button>
   </div>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="document.getElementById('nav').classList.toggle('nav-open'); this.textContent = document.getElementById('nav').classList.contains('nav-open') ? '✕' : '☰'" aria-label="Menu">☰</button>
 <button class="nav-add-section-btn nav-btn active" title="Dodaj nową sekcję" style="background: rgba(36, 199, 96, 0.15); border-color: rgba(36, 199, 96, 0.5); color: var(--green);">+ Sekcja</button></nav>
 
 
@@ -9383,5 +9497,16 @@ function setupCardChildReorder() {
     origExit && origExit.apply(this, arguments);
   };
 })();
+</script>
+<script>
+// Close mobile nav when any nav item clicked
+document.querySelectorAll('.nav-items .nav-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var nav = document.getElementById('nav');
+    var hamburger = document.getElementById('nav-hamburger');
+    if (nav) nav.classList.remove('nav-open');
+    if (hamburger) hamburger.textContent = '☰';
+  });
+});
 </script>
 </body></html>
