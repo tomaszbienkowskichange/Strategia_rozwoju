@@ -27,18 +27,22 @@
 
   * { margin:0; padding:0; box-sizing:border-box; }
 
+  html { overflow-x: hidden; }
+
   body {
     font-family: 'Space Grotesk', sans-serif;
     background: var(--black);
     color: var(--white);
-    overflow-x: hidden;
     cursor: default;
+    min-height: 100%;
   }
 
   /* NOISE OVERLAY — via div for JS control */
   #bg-noise {
     position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    will-change: transform;
+    transform: translateZ(0);
   }
   /* GRID BG — via div for JS control */
   #bg-grid {
@@ -46,6 +50,8 @@
     background-image: linear-gradient(rgba(36,199,96,0.04) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(36,199,96,0.04) 1px, transparent 1px);
     background-size: 40px 40px;
+    will-change: transform;
+    transform: translateZ(0);
   }
 
   /* SCROLL CONTAINER */
@@ -62,11 +68,15 @@
 
   .cover-orbs {
     position:absolute; inset:0; pointer-events:none;
+    isolation: isolate;
+    contain: layout paint;
   }
   .orb {
     position:absolute; border-radius:50%;
-    filter: blur(80px);
+    filter: blur(60px);
     animation: float 8s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0);
   }
   .orb1 { width:600px; height:600px; background: radial-gradient(circle, rgba(36,199,96,0.15) 0%, transparent 70%); top:-100px; left:-100px; animation-delay:0s; }
   .orb2 { width:500px; height:500px; background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%); bottom:-50px; right:-50px; animation-delay:-3s; }
@@ -88,6 +98,7 @@
     animation: spin-slow 20s linear infinite;
     box-shadow: 0 0 60px rgba(36,199,96,0.3);
     transition: box-shadow 0.2s;
+    will-change: transform;
   }
   body.edit-mode .logo-ring { cursor: pointer; }
   body.edit-mode .logo-ring:hover { box-shadow: 0 0 80px rgba(36,199,96,0.6); }
@@ -597,14 +608,32 @@
     background:var(--dark); border-top:1px solid rgba(36,199,96,0.1);
     padding:40px 32px; text-align:center;
     position:relative;
+    overflow: visible;
+    min-height: auto;
   }
-  .footer-logo { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; margin-bottom:8px; }
+  .footer-logo { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; margin-bottom:8px; line-height: 1.2; }
   .footer-logo span { color:var(--green); }
-  .footer-meta { font-size:12px; color:var(--gray2); letter-spacing:1px; }
+  .footer-meta { font-size:12px; color:var(--gray2); letter-spacing:1px; line-height: 1.8; word-break: break-word; overflow-wrap: break-word; }
+  .cr-line { line-height: 1.7; word-break: break-word; overflow-wrap: break-word; }
 
   /* Animations on scroll */
   .fade-in { opacity:0; transform:translateY(20px); transition:opacity 0.6s, transform 0.6s; }
   .fade-in.visible { opacity:1; transform:translateY(0); }
+
+  /* ===== PERFORMANCE OPTIMIZATIONS ===== */
+  /* Promote sticky nav to its own GPU layer */
+  #nav { will-change: transform; }
+  /* Reduce motion for users who prefer it + helps on low-end devices */
+  @media (prefers-reduced-motion: reduce) {
+    .orb { animation: none !important; }
+    .logo-ring { animation: none !important; }
+    .scroll-arrow { animation: none !important; }
+    .fade-in { opacity:1 !important; transform:none !important; transition: none !important; }
+  }
+  /* Edge-specific: lower backdrop-filter cost */
+  @supports (-ms-ime-align: auto), (not (backdrop-filter: blur(1px))) {
+    #nav, #edit-bar { backdrop-filter: none; background: rgba(10,10,10,0.97); }
+  }
 
   /* ============ EDIT FAB ============ */
   #edit-fab {
@@ -4708,12 +4737,12 @@
 
 <!-- FOOTER -->
 <footer id="footer" style="position: relative;">
-  <div class="footer-logo" style="position: relative; cursor: default;" contenteditable="true" data-editable="1"><span style="color: rgb(255, 255, 255);" contenteditable="true" data-editable="1">OD</span><span contenteditable="true" data-editable="1"><span contenteditable="true" data-editable="1">MI</span>ANA</span></div>
-  <p class="footer-meta" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna · Wiązowna · Powiat Otwocki<br>Plan Rozwoju Strategicznego 2026–2028 · Marzec 2026</p><p></p><p></p>
+  <div class="footer-logo" style="position: relative; cursor: default;"><span style="color: rgb(255, 255, 255);">OD</span><span>MIANA</span></div>
+  <p class="footer-meta" style="position: relative;">Spółdzielnia Socjalna · Wiązowna · Powiat Otwocki<br>Plan Rozwoju Strategicznego 2026–2028 · Marzec 2026</p>
   <div id="copyright-notice" style="position: relative; margin-top: 24px;">
-    <p class="cr-line" style="position: relative;" contenteditable="true" data-editable="1">© 2026 Tomasz Bieńkowski. Wszelkie prawa zastrzeżone.</p><p></p><p></p>
-    <p class="cr-line" style="position: relative;" contenteditable="true" data-editable="1">Niniejszy dokument — w tym wszelkie treści, dane finansowe, koncepcje strategiczne, elementy graficzne i strukturalne — stanowi wyłączną własność intelektualną autora Tomasz Bieńkowskiego.</p><p></p><p></p>
-  <p class="cr-line" contenteditable="true" data-editable="1"><span style="white-space: normal; font-variant-ligatures: normal; background-color: rgba(36, 199, 96, 0.05);">Kopiowanie, reprodukowanie, rozpowszechnianie, modyfikowanie, publiczne udostępnianie lub jakiekolwiek inne wykorzystywanie tego dokumentu — w całości lub w części — bez uprzedniej pisemnej zgody właściciela jest surowo zabronione i stanowi naruszenie praw autorskich (Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, Dz.U. 1994 nr 24 poz. 83).</span><br></p><p class="cr-line" contenteditable="true" data-editable="1"><span style="white-space: normal; font-variant-ligatures: normal; background-color: rgba(36, 199, 96, 0.05);">Dokument jest poufny i przeznaczony wyłącznie dla osób, które otrzymały go drogą mailową bezpośrednio od nadawcy. Otrzymanie tego dokumentu nie uprawnia do jego dalszego przekazywania, kopiowania, publikowania ani wykorzystywania w jakiejkolwiek formie bez pisemnej zgody autora.</span><br></p></div>
+    <p class="cr-line" style="position: relative;">© 2026 Tomasz Bieńkowski. Wszelkie prawa zastrzeżone.</p>
+    <p class="cr-line" style="position: relative;">Niniejszy dokument — w tym wszelkie treści, dane finansowe, koncepcje strategiczne, elementy graficzne i strukturalne — stanowi wyłączną własność intelektualną autora Tomasz Bieńkowskiego.</p>
+  <p class="cr-line"><span style="white-space: normal; font-variant-ligatures: normal; background-color: rgba(36, 199, 96, 0.05);">Kopiowanie, reprodukowanie, rozpowszechnianie, modyfikowanie, publiczne udostępnianie lub jakiekolwiek inne wykorzystywanie tego dokumentu — w całości lub w części — bez uprzedniej pisemnej zgody właściciela jest surowo zabronione i stanowi naruszenie praw autorskich (Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, Dz.U. 1994 nr 24 poz. 83).</span></p><p class="cr-line"><span style="white-space: normal; font-variant-ligatures: normal; background-color: rgba(36, 199, 96, 0.05);">Dokument jest poufny i przeznaczony wyłącznie dla osób, które otrzymały go drogą mailową bezpośrednio od nadawcy. Otrzymanie tego dokumentu nie uprawnia do jego dalszego przekazywania, kopiowania, publikowania ani wykorzystywania w jakiejkolwiek formie bez pisemnej zgody autora.</span></p></div>
 </footer>
 
 </div><!-- /app -->
