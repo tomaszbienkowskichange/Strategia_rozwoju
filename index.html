@@ -3396,6 +3396,198 @@
     body.edit-mode .data-table { overflow:visible !important; }
     /* Give the table wrapper overflow:visible so the above-row toolbar is never clipped */
     body.edit-mode .data-table tbody { overflow:visible !important; }
+  </style><style>
+    ._drag-handle {
+      position:absolute; top:2px; left:2px; cursor:grab; opacity:0;
+      font-size:12px; color:var(--green); z-index:31; user-select:none;
+      transition:opacity 0.15s; line-height:1;
+      background:rgba(8,10,14,0.9); border-radius:3px; padding:1px 3px;
+    }
+    ._drag-handle:active { cursor:grabbing; }
+    body.edit-mode [data-sort]:hover > ._drag-handle { opacity:1 !important; }
+
+    ._ect {
+      position:absolute; z-index:9999; display:none;
+      gap:2px; align-items:center;
+      background:rgba(8,10,14,0.96);
+      border:1px solid rgba(36,199,96,0.55); border-radius:6px; padding:2px 3px;
+      pointer-events:all; white-space:nowrap;
+    }
+    ._ect button {
+      width:20px; height:20px; border-radius:3px; border:none;
+      font-size:11px; cursor:pointer; display:flex; align-items:center;
+      justify-content:center; line-height:1; transition:filter 0.1s;
+    }
+    ._ect button:hover { filter:brightness(1.6); }
+    ._ect .e-dup  { background:rgba(36,199,96,0.2); color:#4dff8a; }
+    ._ect .e-del  { background:rgba(255,60,60,0.18); color:#ff7070; }
+    ._ect .e-add  { background:rgba(0,229,255,0.14); color:var(--cyan); font-size:13px; }
+    ._ect .e-col  { background:rgba(245,200,66,0.14); color:var(--gold); }
+    ._ect .e-move { background:rgba(168,85,247,0.15); color:#c084fc; }
+    body.edit-mode [data-ect]:hover > ._ect,
+    body.edit-mode [data-ect]:focus-within > ._ect { display:flex !important; }
+    /* prevent overflow from clipping toolbars */
+    body.edit-mode [data-ect] { overflow:visible !important; }
+
+    ._add-strip {
+      display:none; width:100%; padding:5px 0; text-align:center;
+      border:1px dashed rgba(36,199,96,0.3); border-radius:8px;
+      margin:4px 0; cursor:pointer; font-size:11px; color:var(--green);
+      background:rgba(36,199,96,0.05); transition:background 0.15s;
+      font-family:'Space Grotesk',sans-serif;
+    }
+    body.edit-mode ._add-strip { display:block; }
+    ._add-strip:hover { background:rgba(36,199,96,0.12); }
+
+    ._sh-add-row {
+      display:none; gap:5px; flex-wrap:wrap; margin-top:8px;
+    }
+    body.edit-mode ._sh-add-row { display:flex; }
+    ._sh-btn {
+      padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600;
+      border:1px solid rgba(36,199,96,0.35); background:rgba(36,199,96,0.08);
+      color:var(--green); cursor:pointer; font-family:'Space Grotesk',sans-serif;
+      transition:background 0.15s;
+    }
+    ._sh-btn:hover { background:rgba(36,199,96,0.2); }
+
+    ._ph {
+      background:rgba(36,199,96,0.06); border:2px dashed rgba(36,199,96,0.4);
+      border-radius:10px; pointer-events:none; flex-shrink:0;
+    }
+
+    /* bar chart edit styles */
+    body.edit-mode .rev-bar-wrap { cursor:default; }
+    body.edit-mode .rev-bar { cursor:ns-resize; }
+    .rev-bar-add-col {
+      display:none; position:absolute; top:-28px; left:50%; transform:translateX(-50%);
+      background:rgba(0,229,255,0.15); border:1px solid rgba(0,229,255,0.4);
+      color:var(--cyan); border-radius:5px; padding:2px 6px; font-size:10px;
+      cursor:pointer; white-space:nowrap; font-family:'Space Grotesk',sans-serif; z-index:20;
+    }
+    body.edit-mode .rev-bar-wrap:hover .rev-bar-add-col { display:block; }
+    .rev-bar-del-col {
+      display:none; position:absolute; top:-28px; right:-10px;
+      background:rgba(255,60,60,0.15); border:1px solid rgba(255,60,60,0.4);
+      color:#ff7070; border-radius:5px; padding:2px 5px; font-size:10px;
+      cursor:pointer; font-family:'Space Grotesk',sans-serif; z-index:20;
+    }
+    body.edit-mode .rev-bar-wrap:hover .rev-bar-del-col { display:block; }
+    /* extend hover area above the wrap to cover the buttons */
+    body.edit-mode .rev-bar-wrap { padding-top:30px; margin-top:-30px; }
+
+    /* progress item edit */
+    body.edit-mode .progress-item { position:relative; }
+
+    /* color picker inline */
+    ._color-row {
+      display:none; gap:4px; flex-wrap:wrap; margin-top:6px; align-items:center;
+    }
+    body.edit-mode ._color-row { display:flex; }
+    /* Inside bar chart wraps: float below without affecting flex heights */
+    .rev-bar-wrap > ._color-row {
+      position:absolute; bottom:-32px; left:50%; transform:translateX(-50%);
+      white-space:nowrap; z-index:10; margin-top:0; flex-wrap:nowrap;
+      background:rgba(15,17,23,0.85); border-radius:6px; padding:3px 6px;
+    }
+    ._color-dot {
+      width:16px; height:16px; border-radius:50%; cursor:pointer; border:2px solid transparent;
+      transition:transform 0.12s, border-color 0.12s; flex-shrink:0;
+    }
+    ._color-dot:hover { transform:scale(1.3); border-color:rgba(255,255,255,0.5); }
+    ._color-input { width:22px; height:22px; border-radius:4px; border:1px solid rgba(255,255,255,0.2); cursor:pointer; padding:1px; background:none; flex-shrink:0; }
+  </style><style>
+    /* drag handle */
+    ._drag-handle {
+      position:absolute; top:3px; left:3px; cursor:grab; opacity:0;
+      font-size:13px; color:var(--green); z-index:30; user-select:none;
+      transition:opacity 0.15s; line-height:1;
+      background:rgba(8,10,14,0.88); border-radius:3px; padding:1px 3px;
+    }
+    ._drag-handle:active { cursor:grabbing; }
+
+    /* edit control toolbar */
+    ._ect {
+      position:absolute; z-index:9999; display:none;
+      gap:2px; align-items:center;
+      background:rgba(8,10,14,0.96);
+      border:1px solid rgba(36,199,96,0.55); border-radius:6px; padding:2px;
+      pointer-events:all; white-space:nowrap;
+    }
+    ._ect button {
+      width:20px; height:20px; border-radius:3px; border:none;
+      font-size:11px; cursor:pointer; display:flex; align-items:center;
+      justify-content:center; line-height:1; transition:filter 0.12s;
+    }
+    ._ect button:hover { filter:brightness(1.6); }
+    ._ect .e-dup { background:rgba(36,199,96,0.20); color:#4dff8a; }
+    ._ect .e-del { background:rgba(255,60,60,0.18); color:#ff7070; }
+    ._ect .e-add { background:rgba(0,229,255,0.14); color:var(--cyan); }
+    ._ect .e-col { background:rgba(245,200,66,0.14); color:var(--gold); }
+    ._ect .e-move { background:rgba(168,85,247,0.15); color:#c084fc; }
+
+    /* show on hover in edit mode */
+    body.edit-mode [data-ect]:hover > ._ect,
+    body.edit-mode [data-ect]:focus-within > ._ect { display:flex !important; }
+    /* prevent overflow from clipping toolbar */
+    body.edit-mode [data-ect] { overflow:visible !important; }
+
+    /* add-item strip */
+    ._add-strip {
+      display:none; width:100%; padding:4px 0; text-align:center;
+      border:1px dashed rgba(36,199,96,0.25); border-radius:8px;
+      margin:4px 0; cursor:pointer; font-size:11px; color:var(--green);
+      background:rgba(36,199,96,0.04); transition:background 0.15s;
+    }
+    body.edit-mode ._add-strip { display:block; }
+    ._add-strip:hover { background:rgba(36,199,96,0.1); }
+
+    /* section header edit row */
+    ._sh-add-row {
+      display:none; gap:6px; flex-wrap:wrap; margin-top:8px;
+    }
+    body.edit-mode ._sh-add-row { display:flex; }
+    ._sh-btn {
+      padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600;
+      border:1px solid rgba(36,199,96,0.35); background:rgba(36,199,96,0.08);
+      color:var(--green); cursor:pointer; font-family:'Space Grotesk',sans-serif;
+      transition:background 0.15s;
+    }
+    ._sh-btn:hover { background:rgba(36,199,96,0.18); }
+
+    /* table col controls */
+    ._th-ctrl { display:none; gap:2px; margin-left:4px; }
+    body.edit-mode th:hover ._th-ctrl { display:inline-flex; }
+    ._th-ctrl button {
+      width:16px; height:16px; border-radius:3px; border:none; font-size:9px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    /* th add/del buttons - always visible in edit mode, not just on hover */
+    ._th-add, ._th-del { display:none !important; }
+    /* Fix: absolute-position column buttons so they never overlap cell text or adjacent rows */
+    body.edit-mode ._th-add { display:inline-flex !important; position:absolute; top:3px; right:24px; align-items:center; justify-content:center; z-index:5; }
+    body.edit-mode ._th-del { display:inline-flex !important; position:absolute; top:3px; right:3px; align-items:center; justify-content:center; z-index:5; }
+    body.edit-mode .data-table th { padding-right:48px !important; min-width:60px; }
+
+    /* progress add row */
+    body.edit-mode .progress-item { position:relative; }
+
+    /* placeholder for drag */
+    ._ph {
+      background:rgba(36,199,96,0.06); border:2px dashed rgba(36,199,96,0.4);
+      border-radius:10px; pointer-events:none; flex-shrink:0;
+    }
+    /* rev-bar add/del column buttons - CSS hover on wrap */
+    .rev-bar-add-col, .rev-bar-del-col { display:none !important; }
+    body.edit-mode .rev-bar-wrap:hover .rev-bar-add-col,
+    body.edit-mode .rev-bar-wrap:hover .rev-bar-del-col { display:block !important; }
+    /* table row/th overflow visible for ect toolbar and absolute-positioned buttons */
+    body.edit-mode .data-table tbody tr { overflow:visible !important; position:relative; }
+    body.edit-mode .data-table thead tr { overflow:visible !important; }
+    body.edit-mode .data-table th { position:relative; overflow:visible !important; }
+    body.edit-mode .data-table { overflow:visible !important; }
+    /* Give the table wrapper overflow:visible so the above-row toolbar is never clipped */
+    body.edit-mode .data-table tbody { overflow:visible !important; }
   </style></head>
 <body class="" style="">
 <div id="bg-noise"></div>
@@ -3419,14 +3611,14 @@
   </div>
   <div class="cover-tag" style="position: relative;" contenteditable="true" data-editable="1">Plan Rozwoju Strategicznego · Dokument Strategiczny · Marzec 2026</div>
   <h1 class="cover-title" style="position: relative;" contenteditable="true" data-editable="1">OD<span>MIANA</span></h1>
-  <p class="cover-sub" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna · Wiązowna · Powiat Otwocki <br>Plan Rozwoju Strategicznego 2026–2028</p><p></p><p></p><p></p><p></p>
+  <p class="cover-sub" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna · Wiązowna · Powiat Otwocki <br>Plan Rozwoju Strategicznego 2026–2028</p><p></p><p></p><p></p><p></p><p></p>
   <div class="cover-stats">
     <div class="cover-stat" style="position: relative;"><div class="cover-stat-num" data-animated="1" contenteditable="true" data-editable="1">8+</div><div class="cover-stat-label" contenteditable="true" data-editable="1">Lat działalności</div></div>
     <div class="cover-stat" style="position: relative;"><div class="cover-stat-num" data-animated="1" contenteditable="true" data-editable="1">5</div><div class="cover-stat-label" contenteditable="true" data-editable="1">Linii usług</div></div>
     <div class="cover-stat" style="position: relative;"><div class="cover-stat-num" data-animated="1" contenteditable="true" data-editable="1">1,5 M+</div><div class="cover-stat-label" contenteditable="true" data-editable="1">Cel finansowania zł</div></div>
     <div class="cover-stat" style="position: relative;"><div class="cover-stat-num" data-animated="1" contenteditable="true" data-editable="1">24</div><div class="cover-stat-label" contenteditable="true" data-editable="1">Miesiące planu</div></div>
   </div>
-  <p class="cover-meta" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna Odmiana · Glinianka, ul. Napoleońska 53A · Gmina Wiązowna ·</p><p></p><p></p><p></p><p></p>
+  <p class="cover-meta" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna Odmiana · Glinianka, ul. Napoleońska 53A · Gmina Wiązowna ·</p><p></p><p></p><p></p><p></p><p></p>
   <div class="scroll-hint">
     <span>Przewiń</span>
     <div class="scroll-arrow"></div>
@@ -3459,7 +3651,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 01 · Executive Summary</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Streszczenie Wykonawcze</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Misja · Kierunki wzrostu · Cztery wymiary strategii 2026–2028</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Misja · Kierunki wzrostu · Cztery wymiary strategii 2026–2028</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -3475,7 +3667,7 @@
     <div class="card card-highlight" onclick="openModal('modal-misja')" style="position: relative;" data-modal-id="modal-misja">
       <div class="card-icon icon-editable" style="position: relative;">🎯</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Misja i Profil Organizacji</div>
-      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna Odmiana działa od 2017 r. na terenie gminy Wiązowna. Realizuje misję <strong style="color:var(--green)">aktywizacji zawodowej osób zagrożonych wykluczeniem społecznym</strong> — 5 linii usług, stabilna współpraca z Gminą Wiązowna i OPS.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna Odmiana działa od 2017 r. na terenie gminy Wiązowna. Realizuje misję <strong style="color:var(--green)">aktywizacji zawodowej osób zagrożonych wykluczeniem społecznym</strong> — 5 linii usług, stabilna współpraca z Gminą Wiązowna i OPS.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <div style="margin-top: 16px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Szczegóły ↗</span></div>
     </div>
     <div class="card" onclick="openModal('modal-podstawy')" style="position: relative;" data-modal-id="modal-podstawy">
@@ -3528,7 +3720,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 02 · Analiza</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Profil Organizacji i Analiza SWOT</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">5 linii usług PKD · 8+ lat doświadczenia · Szanse i zagrożenia otoczenia</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">5 linii usług PKD · 8+ lat doświadczenia · Szanse i zagrożenia otoczenia</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -3636,7 +3828,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 03 · Strategia</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Cele Strategiczne 2026–2028</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Cztery filary rozwoju realizowane równolegle w horyzoncie 24 miesięcy</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Cztery filary rozwoju realizowane równolegle w horyzoncie 24 miesięcy</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -3717,7 +3909,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 04 · Finanse</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Plan Finansowania 2026–2028</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Ponad 1,5 mln zł dostępnego wsparcia · 9 źródeł · Horyzont 3 lata</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Ponad 1,5 mln zł dostępnego wsparcia · 9 źródeł · Horyzont 3 lata</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -3849,7 +4041,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 05 · Rynek</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Plan Usług i Rynku</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Pakiety opiekuńcze · Cennik ogrodniczy · Struktura przychodów B2G/B2C/B2B</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Pakiety opiekuńcze · Cennik ogrodniczy · Struktura przychodów B2G/B2C/B2B</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -3901,17 +4093,17 @@
         <div style="margin-top: 16px; position: relative;">
           <div class="progress-item" style="position: relative;">
             <div class="progress-header"><span class="progress-label" style="font-size:13px" contenteditable="true" data-editable="1">B2G — Gmina i OPS</span><span class="progress-val" style="color:var(--green);font-weight:700" contenteditable="true" data-editable="1">60%</span></div>
-            <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 60%;" data-target-w="60%"></div></div>
+            <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 0%;" data-target-w="60%"></div></div>
             <p style="font-size:11px;color:var(--gray);margin-top:4px" contenteditable="true" data-editable="1">Pielęgnacja terenów, sprzątanie, usługi OPS</p>
           </div>
           <div class="progress-item" style="position: relative;">
             <div class="progress-header"><span class="progress-label" style="font-size:13px" contenteditable="true" data-editable="1">B2C — Klienci prywatni</span><span class="progress-val" style="color:var(--cyan);font-weight:700" contenteditable="true" data-editable="1">25%</span></div>
-            <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 25%; background: var(--cyan);" data-target-w="25%"></div></div>
+            <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 0%; background: var(--cyan);" data-target-w="25%"></div></div>
             <p style="font-size:11px;color:var(--gray);margin-top:4px" contenteditable="true" data-editable="1">Pakiety opiekuńcze, ogrody prywatne, transport</p>
           </div>
           <div class="progress-item" style="position: relative;">
             <div class="progress-header"><span class="progress-label" style="font-size:13px" contenteditable="true" data-editable="1">B2B — Firmy i osiedla</span><span class="progress-val" style="color:var(--gold);font-weight:700" contenteditable="true" data-editable="1">15%</span></div>
-            <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 15%; background: var(--gold);" data-target-w="15%"></div></div>
+            <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 0%; background: var(--gold);" data-target-w="15%"></div></div>
             <p style="font-size:11px;color:var(--gray);margin-top:4px" contenteditable="true" data-editable="1">Utrzymanie terenów wspólnych, akcje CSR</p>
           </div>
         </div>
@@ -3929,7 +4121,7 @@
           <li style="position: relative;" contenteditable="true" data-editable="1">Pakiet zimowy / odśnieżanie                                                                                     <strong style="color:var(--green)">500 zł/mies.</strong></li>
           <li style="position: relative;" contenteditable="true" data-editable="1">Transport medyczny                                                                         <strong style="color:var(--green)">             50–100 zł/przejazd</strong></li>
         </ul>
-        <p style="margin-top: 10px; font-size: 12px; color: var(--gray); position: relative;">💡 Karnet 10 przejazdów = 10% rabatu</p><p></p><p></p><p></p><p></p><p></p>
+        <p style="margin-top: 10px; font-size: 12px; color: var(--gray); position: relative;">💡 Karnet 10 przejazdów = 10% rabatu</p><p></p><p></p><p></p><p></p><p></p><p></p>
         <div style="margin-top: 16px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Pełen cennik ↗</span></div>
       </div>
     </div>
@@ -3944,7 +4136,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 06 · HR</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Plan Rozwoju Kompetencji</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">4 ścieżki zawodowe · Roczny harmonogram szkoleń · OWES, PUP, KFS bezpłatnie</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">4 ścieżki zawodowe · Roczny harmonogram szkoleń · OWES, PUP, KFS bezpłatnie</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -3959,7 +4151,7 @@
     <div class="card card-highlight" onclick="openModal('modal-szkolenia-q1')" style="position: relative;" data-modal-id="modal-szkolenia-q1">
       <div class="card-icon icon-editable" style="position: relative;">❄️</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">I kw. Styczeń–Marzec</div>
-      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">OWES Mazowieckie · Bezpłatnie</p><p></p><p></p><p></p><p></p><p></p>
+      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">OWES Mazowieckie · Bezpłatnie</p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Zarządzanie PES i spółdzielnią socjalną</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Źródła finansowania i współpraca z biznesem</li>
@@ -3970,7 +4162,7 @@
     <div class="card" onclick="openModal('modal-szkolenia-q2')" style="position: relative;" data-modal-id="modal-szkolenia-q2">
       <div class="card-icon icon-editable" style="position: relative;">🌸</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">II kw. Kwiecień–Czerwiec</div>
-      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">OWES / PUP Otwock · KFS</p><p></p><p></p><p></p><p></p><p></p>
+      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">OWES / PUP Otwock · KFS</p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Usługi opiekuńcze i sąsiedzkie</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Pierwsza pomoc</li>
@@ -3981,7 +4173,7 @@
     <div class="card" onclick="openModal('modal-szkolenia-q3')" style="position: relative;" data-modal-id="modal-szkolenia-q3">
       <div class="card-icon icon-editable" style="position: relative;">☀️</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">III kw. Lipiec–Wrzesień</div>
-      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">Komercyjne / PUP · KFS/NGO eko</p><p></p><p></p><p></p><p></p><p></p>
+      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">Komercyjne / PUP · KFS/NGO eko</p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Pielęgnacja zieleni i obsługa sprzętu</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Ekologia i edukacja środowiskowa</li>
@@ -3992,7 +4184,7 @@
     <div class="card" onclick="openModal('modal-szkolenia-q4')" style="position: relative;" data-modal-id="modal-szkolenia-q4">
       <div class="card-icon icon-editable" style="position: relative;">🍂</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">IV kw. Październik–Grudzień</div>
-      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">OWES / OZRSS · Bezpłatnie</p><p></p><p></p><p></p><p></p><p></p>
+      <p style="font-size: 11px; color: var(--cyan); margin-bottom: 8px; position: relative;">OWES / OZRSS · Bezpłatnie</p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Marketing usług społecznych</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Zarządzanie projektami</li>
@@ -4058,7 +4250,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 07 · Brand</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Plan Komunikacji i Wizerunku</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Księga Znaku 2026 · Media społecznościowe · Partnerstwa CSR</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Księga Znaku 2026 · Media społecznościowe · Partnerstwa CSR</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -4126,19 +4318,19 @@
     <div class="card" onclick="openModal('modal-social-przed-po')" style="position: relative;" data-modal-id="modal-social-przed-po">
       <div class="card-icon icon-editable" style="position: relative;">📸</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Cykl "Przed i Po"</div>
-      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Zdjęcia terenów przed i po pracach — najbardziej angażujący typ treści. Publikować regularnie po każdej większej realizacji.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Zdjęcia terenów przed i po pracach — najbardziej angażujący typ treści. Publikować regularnie po każdej większej realizacji.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <div style="margin-top: 12px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Strategia ↗</span></div>
     </div>
     <div class="card card-highlight" onclick="openModal('modal-social-filmiki')" style="position: relative;" data-modal-id="modal-social-filmiki">
       <div class="card-icon icon-editable" style="position: relative;">🎥</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Filmiki z Realizacji</div>
-      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Format Reels/TikTok — zwiększa zasięg organiczny bez kosztów reklamowych. Krótkie nagrania z prac terenowych i ekologicznych.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Format Reels/TikTok — zwiększa zasięg organiczny bez kosztów reklamowych. Krótkie nagrania z prac terenowych i ekologicznych.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <div style="margin-top: 12px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Strategia ↗</span></div>
     </div>
     <div class="card" onclick="openModal('modal-csr-oferta')" style="position: relative;" data-modal-id="modal-csr-oferta">
       <div class="card-icon icon-editable" style="position: relative;">🤝</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Oferta dla Sponsorów CSR</div>
-      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Widoczność: fizyczna (logo na sprzęcie), online (posty, strona), medialna (portale, radio), eventowa (akcje sadzenia drzew).</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Widoczność: fizyczna (logo na sprzęcie), online (posty, strona), medialna (portale, radio), eventowa (akcje sadzenia drzew).</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <div style="margin-top: 12px; position: relative;"><span class="badge badge-gold" style="position: relative;" contenteditable="true" data-editable="1">Oferta ↗</span></div>
     </div>
   </div>
@@ -4152,7 +4344,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 08 · Assets</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Plan Pozyskania Sprzętu</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">5 kroków pozyskania · Dotacje OWES · Granty fundacji · Crowdfunding · CSR</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">5 kroków pozyskania · Dotacje OWES · Granty fundacji · Crowdfunding · CSR</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -4199,19 +4391,19 @@
     <div class="card card-highlight" onclick="openModal('modal-sprzet-owes')" style="position: relative;" data-modal-id="modal-sprzet-owes">
       <div class="card-icon icon-editable" style="position: relative;">📝</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Krok 2: Wnioski OWES/PUP</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Złożenie wniosku o dotację inwestycyjną — sprzęt jako element projektu.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Złożenie wniosku o dotację inwestycyjną — sprzęt jako element projektu.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Kosiarki i traktorki ogrodnicze</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Myjki ciśnieniowe</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Odśnieżarki</li>
       </ul>
-      <p style="margin-top: 10px; font-size: 13px; color: var(--green); font-weight: 700; position: relative;">OWES, PUP Otwock: 80–150 tys. zł</p><p></p><p></p><p></p><p></p><p></p>
+      <p style="margin-top: 10px; font-size: 13px; color: var(--green); font-weight: 700; position: relative;">OWES, PUP Otwock: 80–150 tys. zł</p><p></p><p></p><p></p><p></p><p></p><p></p>
       <div style="margin-top: 12px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Szczegóły ↗</span></div>
     </div>
     <div class="card" onclick="openModal('modal-sprzet-fundacje')" style="position: relative;" data-modal-id="modal-sprzet-fundacje">
       <div class="card-icon icon-editable" style="position: relative;">🏢</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Krok 3: Wnioski do Fundacji</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">1-stronicowe PDF z opisem wpływu; wysyłka do 5+ fundacji.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">1-stronicowe PDF z opisem wpływu; wysyłka do 5+ fundacji.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Fundacja ORLEN </li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Fundacja PZU </li>
@@ -4223,7 +4415,7 @@
     <div class="card" onclick="openModal('modal-sprzet-crowdfunding')" style="position: relative;" data-modal-id="modal-sprzet-crowdfunding">
       <div class="card-icon icon-editable" style="position: relative;">📣</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Krok 4: Crowdfunding</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Kampania na Zrzutka.pl lub Pomagam.pl z opisem celu i wideo z terenu.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Kampania na Zrzutka.pl lub Pomagam.pl z opisem celu i wideo z terenu.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">Cel: 30–50 tys. zł na sprzęt ogrodniczy</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Wideo z działań terenowych</li>
@@ -4273,7 +4465,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 09 · Timeline</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Harmonogram Realizacji 2026–2027</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Q1 2026 – Rok 2027 · Działania priorytetowe · Oczekiwane rezultaty kwartał po kwartale</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Q1 2026 – Rok 2027 · Działania priorytetowe · Oczekiwane rezultaty kwartał po kwartale</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -4355,7 +4547,7 @@
         <div class="card-title" style="margin-bottom: 16px; position: relative;" contenteditable="true" data-editable="1">📈 Kluczowe Wskaźniki Sukcesu</div>
         <div class="progress-item" style="position: relative;">
           <div class="progress-header"><span class="progress-label" contenteditable="true" data-editable="1">Status PS uzyskany</span><span class="progress-val" contenteditable="true" data-editable="1">25%</span></div>
-          <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 25%;" data-target-w="25%"></div></div>
+          <div class="progress-bar" style="cursor: ew-resize;"><div class="progress-fill" style="width: 0%;" data-target-w="25%"></div></div>
         </div>
         <div class="progress-item" style="position: relative;">
           <div class="progress-header"><span class="progress-label" contenteditable="true" data-editable="1">Finansowanie pozyskane</span><span class="progress-val" contenteditable="true" data-editable="1">Cel: 1 550 000 zł</span></div>
@@ -4418,7 +4610,7 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 10 · Kontakty</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Kluczowe Kontakty i Zasoby</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Instytucje wspierające · Fundusze europejskie · Programy krajowe</p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">Instytucje wspierające · Fundusze europejskie · Programy krajowe</p><p></p><p></p><p></p><p></p><p></p>
     </div>
   </div>
 
@@ -4426,7 +4618,7 @@
     <div class="card card-highlight" onclick="openModal('modal-kontakt-fers')" style="position: relative;" data-modal-id="modal-kontakt-fers">
       <div class="card-icon icon-editable" style="position: relative;">🇪🇺</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">FERS / Fundusze EU</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Programy unijne, nabory konkursowe dla PES</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Programy unijne, nabory konkursowe dla PES</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">www.rozwojspoleczny.gov.pl</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">www.funduszeeuropejskie.gov.pl</li>
@@ -4436,7 +4628,7 @@
     <div class="card" onclick="openModal('modal-kontakt-bgk')" style="position: relative;" data-modal-id="modal-kontakt-bgk">
       <div class="card-icon icon-editable" style="position: relative;">🏦</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">BGK — Bank Gosp. Krajowego</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Pożyczka na start i na rozwój (do 1 mln zł)</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Pożyczka na start i na rozwój (do 1 mln zł)</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">www.bgk.pl</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">tel. 22 860 8000</li>
@@ -4446,7 +4638,7 @@
     <div class="card" onclick="openModal('modal-kontakt-pfron')" style="position: relative;" data-modal-id="modal-kontakt-pfron">
       <div class="card-icon icon-editable" style="position: relative;">♿</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">PFRON — przez Starostę</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Wyposażenie stanowisk, dofinansowanie wynagrodzeń</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Wyposażenie stanowisk, dofinansowanie wynagrodzeń</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">ul. Armii Krajowej 5, 05-400 Otwock</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">tel. (22) 779 24 41</li>
@@ -4456,7 +4648,7 @@
     <div class="card" onclick="openModal('modal-kontakt-pup')" style="position: relative;" data-modal-id="modal-kontakt-pup">
       <div class="card-icon icon-editable" style="position: relative;">💼</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">PUP Otwock</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Refundacja ZUS, dotacje na miejsca pracy, KFS</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Refundacja ZUS, dotacje na miejsca pracy, KFS</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">ul. Górna 11, Otwock</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">tel. (22) 779 37 14</li>
@@ -4466,7 +4658,7 @@
     <div class="card card-highlight" onclick="openModal('modal-kontakt-mowes')" style="position: relative;" data-modal-id="modal-kontakt-mowes">
       <div class="card-icon icon-editable" style="position: relative;">🌟</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">mOWES / Warto być PS</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Program 2026–2028, szkolenia, doradztwo dla PES</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Program 2026–2028, szkolenia, doradztwo dla PES</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">www.mowes.pl</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">Bezpłatne wsparcie dla SpSoc</li>
@@ -4476,7 +4668,7 @@
     <div class="card" onclick="openModal('modal-kontakt-ozrss')" style="position: relative;" data-modal-id="modal-kontakt-ozrss">
       <div class="card-icon icon-editable" style="position: relative;">🌐</div>
       <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">OZRSS i EaSI</div>
-      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Szkolenia dla spółdzielców, prawo PES, konkursy europejskie</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
+      <p class="card-body" style="margin-bottom: 10px; position: relative;" contenteditable="true" data-editable="1">Szkolenia dla spółdzielców, prawo PES, konkursy europejskie</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
       <ul class="card-list" style="position: relative;">
         <li style="position: relative;" contenteditable="true" data-editable="1">www.ozrss.pl</li>
         <li style="position: relative;" contenteditable="true" data-editable="1">ec.europa.eu/info/funding-tenders</li>
@@ -4516,17 +4708,17 @@
 
 <!-- FOOTER -->
 <footer id="footer" style="position: relative;">
-  <div class="footer-logo" style="position: relative; cursor: default;" contenteditable="true" data-editable="1"><span style="color: rgb(255, 255, 255);">OD</span><span contenteditable="true" data-editable="1"><span contenteditable="true" data-editable="1">MI</span>ANA</span></div>
-  <p class="footer-meta" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna · Wiązowna · Powiat Otwocki<br>Plan Rozwoju Strategicznego 2026–2028 · Marzec 2026</p><p></p>
+  <div class="footer-logo" style="position: relative; cursor: default;" contenteditable="true" data-editable="1"><span style="color: rgb(255, 255, 255);" contenteditable="true" data-editable="1">OD</span><span contenteditable="true" data-editable="1"><span contenteditable="true" data-editable="1">MI</span>ANA</span></div>
+  <p class="footer-meta" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna · Wiązowna · Powiat Otwocki<br>Plan Rozwoju Strategicznego 2026–2028 · Marzec 2026</p><p></p><p></p>
   <div id="copyright-notice" style="position: relative; margin-top: 24px;">
-    <p class="cr-line" contenteditable="true" data-editable="1" style="position: relative;">© 2026 Tomasz Bieńkowski. Wszelkie prawa zastrzeżone.</p><p></p>
-    <p class="cr-line" contenteditable="true" data-editable="1" style="position: relative;">Niniejszy dokument — w tym wszelkie treści, dane finansowe, koncepcje strategiczne, elementy graficzne i strukturalne — stanowi wyłączną własność intelektualną autora Tomasz Bieńkowskiego.</p><p></p>
-  </div>
+    <p class="cr-line" style="position: relative;" contenteditable="true" data-editable="1">© 2026 Tomasz Bieńkowski. Wszelkie prawa zastrzeżone.</p><p></p><p></p>
+    <p class="cr-line" style="position: relative;" contenteditable="true" data-editable="1">Niniejszy dokument — w tym wszelkie treści, dane finansowe, koncepcje strategiczne, elementy graficzne i strukturalne — stanowi wyłączną własność intelektualną autora Tomasz Bieńkowskiego.</p><p></p><p></p>
+  <p class="cr-line" contenteditable="true" data-editable="1"><span style="white-space: normal; font-variant-ligatures: normal; background-color: rgba(36, 199, 96, 0.05);">Kopiowanie, reprodukowanie, rozpowszechnianie, modyfikowanie, publiczne udostępnianie lub jakiekolwiek inne wykorzystywanie tego dokumentu — w całości lub w części — bez uprzedniej pisemnej zgody właściciela jest surowo zabronione i stanowi naruszenie praw autorskich (Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, Dz.U. 1994 nr 24 poz. 83).</span><br></p><p class="cr-line" contenteditable="true" data-editable="1"><span style="white-space: normal; font-variant-ligatures: normal; background-color: rgba(36, 199, 96, 0.05);">Dokument jest poufny i przeznaczony wyłącznie dla osób, które otrzymały go drogą mailową bezpośrednio od nadawcy. Otrzymanie tego dokumentu nie uprawnia do jego dalszego przekazywania, kopiowania, publikowania ani wykorzystywania w jakiejkolwiek formie bez pisemnej zgody autora.</span><br></p></div>
 </footer>
 
 </div><!-- /app -->
 <!-- FLOATING ELEMENT CONTROLS (positioned absolutely over hovered WYSIWYG element) -->
-<div class="medit-el-ctrl" id="medit-el-ctrl" style="left: 207px; top: -13.5px;">
+<div class="medit-el-ctrl" id="medit-el-ctrl" style="left: 274px; top: 327.5px;">
 <button class="medit-el-ctrl-btn" id="medit-ctrl-up" onclick="meditMoveEl(-1)" onmousedown="event.preventDefault()" title="Przesuń wyżej">↑</button>
 <button class="medit-el-ctrl-btn" id="medit-ctrl-down" onclick="meditMoveEl(1)" onmousedown="event.preventDefault()" title="Przesuń niżej">↓</button>
 <button class="medit-el-ctrl-btn" id="medit-ctrl-dup" onclick="meditDupEl()" onmousedown="event.preventDefault()" title="Powiel">⧉</button>
@@ -4690,7 +4882,7 @@
 </div>
 </div>
 <!-- ============ EDIT BAR ============ -->
-<div id="edit-bar" class="visible">
+<div id="edit-bar">
 <div class="edit-bar-info">✅ <strong style="color:var(--green)">Zapisano!</strong> Zmiany zachowane lokalnie — przy odświeżeniu przywrócą się automatycznie.</div>
 <div class="edit-bar-actions">
 <button class="edit-bar-btn" id="quick-save-btn" onclick="saveToLocalStorage();const i=document.getElementById('edit-bar').querySelector('.edit-bar-info');if(i){const o=i.innerHTML;i.innerHTML='✅ &lt;strong style=\'color:var(--green)\'&gt;Zapisano!&lt;/strong&gt; Zmiany zachowane lokalnie — przy odświeżeniu przywrócą się automatycznie.';setTimeout(()=&gt;{i.innerHTML=o;},3000);}" style="border-color:rgba(36,199,96,0.5);color:var(--green);" title="Zapisz zmiany w przeglądarce (bez pobierania pliku)">💾 Zapisz lokalnie</button>
