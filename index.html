@@ -5958,7 +5958,7 @@ body.edit-mode .bento-bar{cursor:ew-resize;position:relative}
 </div>
 </div>
 <!-- ============ EDIT BAR ============ -->
-<div id="edit-bar" class="visible">
+<div id="edit-bar">
 <div class="edit-bar-info">✅ <strong style="color:var(--green)">Zapisano!</strong> Zmiany zachowane lokalnie — przy odświeżeniu przywrócą się automatycznie.</div>
 <div class="edit-bar-actions">
 <button class="edit-bar-btn" id="quick-save-btn" onclick="saveToLocalStorage();const i=document.getElementById('edit-bar').querySelector('.edit-bar-info');if(i){const o=i.innerHTML;i.innerHTML='✅ &lt;strong style=\'color:var(--green)\'&gt;Zapisano!&lt;/strong&gt; Zmiany zachowane lokalnie — przy odświeżeniu przywrócą się automatycznie.';setTimeout(()=&gt;{i.innerHTML=o;},3000);}" style="border-color:rgba(36,199,96,0.5);color:var(--green);" title="Zapisz zmiany w przeglądarce (bez pobierania pliku)">💾 Zapisz lokalnie</button>
