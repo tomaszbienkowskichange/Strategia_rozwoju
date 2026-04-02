@@ -35,6 +35,86 @@
     color: var(--white);
     cursor: default;
     min-height: 100%;
+    display: flex;
+  }
+
+  /* ============ SIDEBAR LAYOUT ============ */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 220px; z-index: 200;
+    background: #0d0f14;
+    border-right: 1px solid rgba(36,199,96,0.1);
+    display: flex; flex-direction: column;
+    overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: thin; scrollbar-color: var(--dark3) transparent;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  #sidebar::-webkit-scrollbar { width: 3px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--dark3); border-radius: 2px; }
+
+  .sb-logo {
+    padding: 20px 18px 16px;
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+    color: var(--white); letter-spacing: -0.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+  }
+  .sb-logo span { color: var(--green); }
+
+  .sb-nav-section {
+    padding: 16px 12px 4px;
+    font-size: 9px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--gray2);
+  }
+
+  .sb-nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px; margin: 1px 8px;
+    border-radius: 8px; font-size: 12px; font-weight: 500;
+    color: var(--gray); cursor: pointer;
+    transition: all 0.18s; border: none; background: transparent;
+    text-align: left; width: calc(100% - 16px); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .sb-nav-link:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+  .sb-nav-link.active { background: rgba(36,199,96,0.12); color: var(--green); }
+  .sb-nav-link.active .sb-dot { background: var(--green); box-shadow: 0 0 6px rgba(36,199,96,0.6); }
+
+  .sb-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.2); flex-shrink: 0;
+    transition: all 0.18s;
+  }
+
+  .sb-footer {
+    margin-top: auto; padding: 16px 14px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 10px; color: var(--gray2); line-height: 1.5;
+    flex-shrink: 0;
+  }
+
+  /* ============ MAIN CONTENT AREA ============ */
+  #main-content {
+    margin-left: 220px;
+    flex: 1;
+    min-width: 0;
+    position: relative; z-index: 1;
+  }
+
+  /* Hamburger for mobile */
+  #sb-toggle {
+    display: none; position: fixed; top: 12px; left: 12px; z-index: 500;
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(10,10,10,0.95); border: 1px solid rgba(36,199,96,0.3);
+    color: var(--green); font-size: 18px; cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.sb-open { transform: translateX(0); }
+    #main-content { margin-left: 0; }
+    #sb-toggle { display: flex; }
   }
 
   /* NOISE OVERLAY — via div for JS control */
@@ -56,6 +136,9 @@
 
   /* SCROLL CONTAINER */
   #app { position:relative; z-index:1; }
+
+  /* ============ TOP MINI-NAV (removed — sidebar replaces) ============ */
+  #nav { display: none !important; }
 
   /* ============ COVER ============ */
   #cover {
@@ -210,8 +293,85 @@
 
   /* ============ SECTIONS ============ */
   .section {
-    padding: 80px 32px;
-    max-width: 1400px; margin:0 auto;
+    padding: 80px 40px;
+    max-width: 1300px; margin:0 auto;
+  }
+
+  /* ============ BENTO GRID ============ */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+  .bento-grid .bento-span2 { grid-column: span 2; }
+  .bento-grid .bento-span3 { grid-column: span 3; }
+  .bento-grid .bento-tall { grid-row: span 2; }
+
+  .bento-card {
+    background: var(--dark2);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px; padding: 22px 20px;
+    position: relative; overflow: hidden;
+    transition: all 0.25s;
+  }
+  .bento-card:hover { border-color: rgba(36,199,96,0.3); transform: translateY(-2px); box-shadow: 0 20px 40px rgba(0,0,0,0.45); }
+  .bento-card.bc-green {
+    background: linear-gradient(135deg, rgba(36,199,96,0.1) 0%, rgba(26,29,36,0.98) 70%);
+    border-color: rgba(36,199,96,0.25);
+  }
+  .bento-card.bc-dark { background: #0d0f14; border-color: rgba(255,255,255,0.05); }
+  .bento-card.bc-accent {
+    background: rgba(36,199,96,0.07);
+    border-color: rgba(36,199,96,0.2);
+  }
+
+  .bento-label {
+    font-size: 9px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--gray2); margin-bottom: 8px;
+  }
+  .bento-title {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--white); margin-bottom: 6px;
+  }
+  .bento-value {
+    font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800;
+    color: var(--green); line-height: 1;
+  }
+  .bento-value.bv-sm { font-size: 26px; }
+  .bento-sub {
+    font-size: 11px; color: var(--gray); margin-top: 6px; line-height: 1.55;
+  }
+  .bento-bar {
+    height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px;
+    margin-top: 14px; overflow: hidden;
+  }
+  .bento-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--green), var(--cyan)); }
+
+  /* Bento SWOT 2×2 */
+  .bento-swot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bswot-cell { border-radius: 10px; padding: 12px 14px; }
+  .bswot-cell.bs { background: rgba(36,199,96,0.09); border: 1px solid rgba(36,199,96,0.2); }
+  .bswot-cell.bw { background: rgba(245,200,66,0.07); border: 1px solid rgba(245,200,66,0.18); }
+  .bswot-cell.bo { background: rgba(0,229,255,0.07); border: 1px solid rgba(0,229,255,0.15); }
+  .bswot-cell.bt { background: rgba(255,123,44,0.07); border: 1px solid rgba(255,123,44,0.18); }
+  .bswot-letter { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+  .bswot-items { list-style: none; }
+  .bswot-items li { font-size: 11px; color: var(--gray); padding: 2px 0; }
+  .bswot-items li::before { content: '· '; color: inherit; opacity: 0.5; }
+
+  /* Bento pill */
+  .bento-pill {
+    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+    background: rgba(36,199,96,0.15); color: var(--green);
+    border: 1px solid rgba(36,199,96,0.25); margin-top: 12px;
+  }
+
+  /* 2×2 bento for priorities */
+  .bento-2x2 {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; margin-bottom: 40px;
   }
 
   .section-header {
@@ -3732,6 +3892,36 @@
 
   </style></head>
 <body class="" style="">
+<button id="sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('sb-open')">☰</button>
+
+<nav id="sidebar">
+  <div class="sb-logo">OD<span>MIANA</span></div>
+
+  <div class="sb-nav-section">Strategia</div>
+  <button class="sb-nav-link" onclick="sbNav('cover')"><span class="sb-dot"></span>Strona tytułowa</button>
+  <button class="sb-nav-link" onclick="sbNav('s1')"><span class="sb-dot"></span>Streszczenie</button>
+  <button class="sb-nav-link" onclick="sbNav('s2')"><span class="sb-dot"></span>Profil i SWOT</button>
+  <button class="sb-nav-link" onclick="sbNav('s3')"><span class="sb-dot"></span>Cele Strategiczne</button>
+  <button class="sb-nav-link" onclick="sbNav('s4')"><span class="sb-dot"></span>Finansowanie</button>
+
+  <div class="sb-nav-section">Operacje</div>
+  <button class="sb-nav-link" onclick="sbNav('s5')"><span class="sb-dot"></span>Usługi i Rynek</button>
+  <button class="sb-nav-link" onclick="sbNav('s6')"><span class="sb-dot"></span>Kompetencje</button>
+  <button class="sb-nav-link" onclick="sbNav('s7')"><span class="sb-dot"></span>Komunikacja</button>
+  <button class="sb-nav-link" onclick="sbNav('s8')"><span class="sb-dot"></span>Sprzęt</button>
+
+  <div class="sb-nav-section">Plan</div>
+  <button class="sb-nav-link" onclick="sbNav('s9')"><span class="sb-dot"></span>Harmonogram</button>
+  <button class="sb-nav-link" onclick="sbNav('s10')"><span class="sb-dot"></span>Kontakty</button>
+
+  <div class="sb-footer">
+    Spółdzielnia Socjalna<br>
+    Odmiana · Wiązowna<br>
+    Plan 2026–2028
+  </div>
+</nav>
+
+<div id="main-content">
 <div id="bg-noise"></div>
 <div id="bg-grid"></div>
 <div id="app">
@@ -3767,8 +3957,8 @@
   </div>
 </section>
 
-<!-- NAV -->
-<nav id="nav">
+<!-- NAV hidden — sidebar replaces it -->
+<nav id="nav" style="display:none">
   <div class="nav-logo">OD<span style="color: rgb(36, 199, 96);">MIANA</span></div>
   <div class="nav-items">
     <button class="nav-btn" onclick="navScrollTo('s1')">Streszczenie</button>
@@ -3782,8 +3972,7 @@
     <button class="nav-btn" onclick="navScrollTo('s9')">Harmonogram</button>
     <button class="nav-btn" onclick="navScrollTo('s10')">Kontakty</button>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger" onclick="document.getElementById('nav').classList.toggle('nav-open'); this.textContent = document.getElementById('nav').classList.contains('nav-open') ? '✕' : '☰'" aria-label="Menu">☰</button>
-<button class="nav-add-section-btn nav-btn active" title="Dodaj nową sekcję" style="background: rgba(36, 199, 96, 0.15); border-color: rgba(36, 199, 96, 0.5); color: var(--green);">+ Sekcja</button></nav>
+</nav>
 
 
 <!-- ============ S1: STRESZCZENIE WYKONAWCZE ============ -->
@@ -3798,59 +3987,83 @@
     </div>
   </div>
 
-  <div class="kpi-grid fade-in visible" data-ki="0">
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">2017</div><div class="kpi-label" contenteditable="true" data-editable="1">Rok założenia</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">24 mies.</div><div class="kpi-label" contenteditable="true" data-editable="1">Horyzont planu</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">1,5 M+</div><div class="kpi-label" contenteditable="true" data-editable="1">Cel finansowania (zł)</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">PS</div><div class="kpi-label" contenteditable="true" data-editable="1">Cel: Status Przeds. Społ.</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">60/40</div><div class="kpi-label" contenteditable="true" data-editable="1">Docelowy split B2G/B2C</div></div>
-  </div>
-
-  <div class="cards-grid cards-2 fade-in visible" style="margin-bottom:16px" data-gi="0">
-    <div class="card card-highlight" onclick="openModal('modal-misja')" style="position: relative;" data-modal-id="modal-misja">
-      <div class="card-icon icon-editable" style="position: relative;">🎯</div>
-      <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Misja i Profil Organizacji</div>
-      <p class="card-body" style="position: relative;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna Odmiana działa od 2017 r. na terenie gminy Wiązowna. Realizuje misję <strong style="color:var(--green)">aktywizacji zawodowej osób zagrożonych wykluczeniem społecznym</strong> — 5 linii usług, stabilna współpraca z Gminą Wiązowna i OPS.</p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p>
-      <div style="margin-top: 16px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Szczegóły ↗</span></div>
+  <div class="bento-grid fade-in visible" data-ki="0">
+    <!-- Row 1: big mission card (spans 2) + stat -->
+    <div class="bento-card bc-green bento-span2" onclick="openModal('modal-misja')" style="cursor:pointer;position:relative;" data-modal-id="modal-misja">
+      <div class="bento-label">Misja organizacji</div>
+      <div class="bento-title" style="font-size:18px;margin-bottom:10px;" contenteditable="true" data-editable="1">Misja i Profil Organizacji</div>
+      <p style="font-size:13px;color:var(--gray);line-height:1.7;" contenteditable="true" data-editable="1">Spółdzielnia Socjalna Odmiana działa od 2017 r. na terenie gminy Wiązowna. Realizuje misję <strong style="color:var(--green)">aktywizacji zawodowej osób zagrożonych wykluczeniem społecznym</strong> — 5 linii usług, stabilna współpraca z Gminą Wiązowna i OPS.</p>
+      <div class="bento-pill">Szczegóły ↗</div>
     </div>
-    <div class="card" onclick="openModal('modal-podstawy')" style="position: relative;" data-modal-id="modal-podstawy">
-      <div class="card-icon icon-editable" style="position: relative;">📋</div>
-      <div class="card-title" style="position: relative;" contenteditable="true" data-editable="1">Podstawy Planu</div>
-      <ul class="card-list" style="position: relative;">
-        <li style="position: relative;" contenteditable="true" data-editable="1"><strong>Podmiot:</strong> Spółdzielnia Socjalna Odmiana</li>
-        <li style="position: relative;" contenteditable="true" data-editable="1"><strong>Siedziba:</strong> Glinianka, ul. Napoleońska 53A, Gmina Wiązowna</li>
-        <li style="position: relative;" contenteditable="true" data-editable="1"><strong>Założyciele:</strong> Gmina Wiązowna + Stow. Usług Społ. Krokus</li>
-        <li style="position: relative;" contenteditable="true" data-editable="1"><strong>Horyzont:</strong> 24 miesiące (2026–2028) · Marzec 2026</li>
-        <li style="position: relative;" contenteditable="true" data-editable="1"><strong>Podstawa:</strong> Biznesplan, dokumenty finansowe, Księga Znaku</li>
+    <div class="bento-card bc-dark">
+      <div class="bento-label">Rok założenia</div>
+      <div class="bento-value" data-animated="1" contenteditable="true" data-editable="1">2017</div>
+      <div class="bento-sub">8+ lat nieprzerwanej działalności</div>
+    </div>
+
+    <!-- Row 2: 3 stats -->
+    <div class="bento-card bc-accent">
+      <div class="bento-label">Cel finansowania</div>
+      <div class="bento-value bv-sm" data-animated="1" contenteditable="true" data-editable="1">1,5 M+</div>
+      <div class="bento-sub">9 źródeł · PFRON, BGK, OWES, CSR</div>
+      <div class="bento-bar"><div class="bento-bar-fill" style="width:35%"></div></div>
+    </div>
+    <div class="bento-card bc-dark">
+      <div class="bento-label">Cel statusowy</div>
+      <div class="bento-value bv-sm" contenteditable="true" data-editable="1">PS</div>
+      <div class="bento-sub">Przedsiębiorstwo Społeczne · wniosek M1–M3 2026</div>
+    </div>
+    <div class="bento-card bc-dark">
+      <div class="bento-label">Struktura przychodów (cel)</div>
+      <div class="bento-value bv-sm" contenteditable="true" data-editable="1">60/40</div>
+      <div class="bento-sub">B2G / B2C+B2B · do 2028</div>
+    </div>
+
+    <!-- Row 3: plan details + horizon -->
+    <div class="bento-card bc-dark bento-span2" onclick="openModal('modal-podstawy')" style="cursor:pointer;position:relative;" data-modal-id="modal-podstawy">
+      <div class="bento-label">Podstawy planu</div>
+      <div class="bento-title" contenteditable="true" data-editable="1">Dane Organizacyjne</div>
+      <ul style="list-style:none;margin-top:10px;">
+        <li style="font-size:12px;color:var(--gray);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);" contenteditable="true" data-editable="1"><strong style="color:var(--white)">Podmiot:</strong> Spółdzielnia Socjalna Odmiana</li>
+        <li style="font-size:12px;color:var(--gray);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);" contenteditable="true" data-editable="1"><strong style="color:var(--white)">Siedziba:</strong> Glinianka, ul. Napoleońska 53A, Gmina Wiązowna</li>
+        <li style="font-size:12px;color:var(--gray);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);" contenteditable="true" data-editable="1"><strong style="color:var(--white)">Założyciele:</strong> Gmina Wiązowna + Stow. Usług Społ. Krokus</li>
+        <li style="font-size:12px;color:var(--gray);padding:4px 0;" contenteditable="true" data-editable="1"><strong style="color:var(--white)">Horyzont:</strong> 24 miesiące (2026–2028) · Marzec 2026</li>
       </ul>
-      <div style="margin-top: 16px; position: relative;"><span class="badge badge-green" style="position: relative;" contenteditable="true" data-editable="1">Szczegóły ↗</span></div>
+      <div class="bento-pill">Szczegóły ↗</div>
+    </div>
+    <div class="bento-card">
+      <div class="bento-label">Horyzont planu</div>
+      <div class="bento-value bv-sm" contenteditable="true" data-editable="1">24 mies.</div>
+      <div class="bento-sub">2026–2028 · Marzec 2026</div>
     </div>
   </div>
 
-  <div class="cards-grid cards-4 fade-in visible" data-gi="1">
-    <div class="priority-card" onclick="openModal('modal-cel1')" style="position: relative;" data-modal-id="modal-cel1">
-      <div class="priority-num" style="position: relative;" contenteditable="true" data-editable="1">01</div>
-      <div class="priority-title" style="position: relative;" contenteditable="true" data-editable="1">Status Przedsiębiorstwa Społecznego</div>
-      <div class="priority-sub" style="position: relative;" contenteditable="true" data-editable="1">Formalny · Przywileje · Wniosek do Wojewody</div>
-      <div class="priority-body" style="position: relative;" contenteditable="true" data-editable="1">Pełne uprawnienia prawne i finansowe — klucz do klauzul Pzp i programów wsparcia.</div>
+  <!-- Cele strategiczne — 2×2 bento -->
+  <div style="margin-bottom:24px;"><span class="section-label" style="position:relative;">Cztery cele strategiczne</span></div>
+  <div class="bento-2x2 fade-in visible" data-gi="1">
+    <div class="bento-card bc-green" onclick="openModal('modal-cel1')" style="cursor:pointer;position:relative;" data-modal-id="modal-cel1">
+      <div class="bento-label">Cel strategiczny 01</div>
+      <div class="bento-title" style="font-size:16px;" contenteditable="true" data-editable="1">Status Przedsiębiorstwa Społecznego</div>
+      <div class="bento-sub" contenteditable="true" data-editable="1">Formalny · Przywileje · Wniosek do Wojewody · Pełne uprawnienia Pzp</div>
+      <div class="bento-pill">Szczegóły ↗</div>
     </div>
-    <div class="priority-card" onclick="openModal('modal-cel2')" style="position: relative;" data-modal-id="modal-cel2">
-      <div class="priority-num" style="position: relative;" contenteditable="true" data-editable="1">02</div>
-      <div class="priority-title" style="position: relative;" contenteditable="true" data-editable="1">Ponad 1,5 mln zł Finansowania</div>
-      <div class="priority-sub" style="position: relative;" contenteditable="true" data-editable="1">PFRON · BGK · OWES · Fundacje · CSR</div>
-      <div class="priority-body" style="position: relative;" contenteditable="true" data-editable="1">9 równoległych źródeł — dotacje, pożyczki, granty i finansowanie społecznościowe.</div>
+    <div class="bento-card" onclick="openModal('modal-cel2')" style="cursor:pointer;position:relative;" data-modal-id="modal-cel2">
+      <div class="bento-label">Cel strategiczny 02</div>
+      <div class="bento-title" style="font-size:16px;" contenteditable="true" data-editable="1">Ponad 1,5 mln zł Finansowania</div>
+      <div class="bento-sub" contenteditable="true" data-editable="1">PFRON · BGK · OWES · Fundacje · CSR · 9 równoległych źródeł</div>
+      <div class="bento-pill">Szczegóły ↗</div>
     </div>
-    <div class="priority-card" onclick="openModal('modal-cel3')" style="position: relative;" data-modal-id="modal-cel3">
-      <div class="priority-num" style="position: relative;" contenteditable="true" data-editable="1">03</div>
-      <div class="priority-title" style="position: relative;" contenteditable="true" data-editable="1">Rozwój Usług Opiekuńczych i Komercyjnych</div>
-      <div class="priority-sub" style="position: relative;" contenteditable="true" data-editable="1">B2C · Pakiety opieki · Transport · B2B</div>
-      <div class="priority-body" style="position: relative;" contenteditable="true" data-editable="1">Dywersyfikacja od 100% B2G do struktury 60/40 — nowe źródła przychodów.</div>
+    <div class="bento-card" onclick="openModal('modal-cel3')" style="cursor:pointer;position:relative;" data-modal-id="modal-cel3">
+      <div class="bento-label">Cel strategiczny 03</div>
+      <div class="bento-title" style="font-size:16px;" contenteditable="true" data-editable="1">Rozwój Usług i Nowe Rynki</div>
+      <div class="bento-sub" contenteditable="true" data-editable="1">B2C · Pakiety opieki · Transport · Dywersyfikacja 60/40</div>
+      <div class="bento-pill">Szczegóły ↗</div>
     </div>
-    <div class="priority-card" onclick="openModal('modal-cel4')" style="position: relative;" data-modal-id="modal-cel4">
-      <div class="priority-num" style="position: relative;" contenteditable="true" data-editable="1">04</div>
-      <div class="priority-title" style="position: relative;" contenteditable="true" data-editable="1">Spójny Wizerunek i Widoczność</div>
-      <div class="priority-sub" style="position: relative;" contenteditable="true" data-editable="1">Księga Znaku 2025 · Social media · CSR</div>
-      <div class="priority-body" style="position: relative;" contenteditable="true" data-editable="1">Identyfikacja wizualna na wszystkich nośnikach — odzież, pojazdy, digital, eventy.</div>
+    <div class="bento-card" onclick="openModal('modal-cel4')" style="cursor:pointer;position:relative;" data-modal-id="modal-cel4">
+      <div class="bento-label">Cel strategiczny 04</div>
+      <div class="bento-title" style="font-size:16px;" contenteditable="true" data-editable="1">Spójny Wizerunek i Widoczność</div>
+      <div class="bento-sub" contenteditable="true" data-editable="1">Księga Znaku 2025 · Social media · CSR · 5+ partnerów</div>
+      <div class="bento-pill">Szczegóły ↗</div>
     </div>
   </div>
 </section>
@@ -3863,15 +4076,77 @@
     <div class="section-title-block">
       <div class="section-label" style="position: relative;" contenteditable="true" data-editable="1">Moduł 02 · Analiza</div>
       <h2 class="section-title" style="position: relative;" contenteditable="true" data-editable="1">Profil Organizacji i Analiza SWOT</h2>
-      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">5 linii usług PKD · 8+ lat doświadczenia · Szanse i zagrożenia otoczenia</p><p></p><p></p><p></p><p></p><p></p>
+      <p class="section-desc" style="position: relative;" contenteditable="true" data-editable="1">5 linii usług PKD · 8+ lat doświadczenia · Szanse i zagrożenia otoczenia</p>
     </div>
   </div>
 
-  <div class="kpi-grid fade-in visible" data-ki="1">
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">5</div><div class="kpi-label" contenteditable="true" data-editable="1">Obszarów PKD</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">8+</div><div class="kpi-label" contenteditable="true" data-editable="1">Lat działalności</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">B2G</div><div class="kpi-label" contenteditable="true" data-editable="1">Główny segment (Gmina+OPS)</div></div>
-    <div class="kpi-card" style="position: relative;"><div class="kpi-val" data-animated="1" contenteditable="true" data-editable="1">180</div><div class="kpi-label" contenteditable="true" data-editable="1">SpSoc na Mazowszu</div></div>
+  <!-- Bento SWOT + stats -->
+  <div class="bento-grid fade-in visible" data-ki="1">
+    <!-- SWOT big panel spans 2 cols, 2 rows -->
+    <div class="bento-card bento-span2 bento-tall bc-dark">
+      <div class="bento-label">Analiza SWOT</div>
+      <div class="bento-swot" style="margin-top:12px;height:calc(100% - 28px);">
+        <div class="bswot-cell bs">
+          <div class="bswot-letter" style="color:var(--green)">S</div>
+          <ul class="bswot-items">
+            <li contenteditable="true" data-editable="1">8+ lat nieprzerwanej działalności</li>
+            <li contenteditable="true" data-editable="1">Stabilna współpraca z Gminą Wiązowna</li>
+            <li contenteditable="true" data-editable="1">Siedziba zapewniona bezkosztowo</li>
+            <li contenteditable="true" data-editable="1">Szeroki zakres PKD — 5 linii usług</li>
+            <li contenteditable="true" data-editable="1">Księga Znaku 2026 — gotowa do wdrożenia</li>
+          </ul>
+        </div>
+        <div class="bswot-cell bw">
+          <div class="bswot-letter" style="color:var(--gold)">W</div>
+          <ul class="bswot-items">
+            <li contenteditable="true" data-editable="1">Brak statusu PS — w trakcie uzyskiwania</li>
+            <li contenteditable="true" data-editable="1">Uzależnienie od jednego zleceniodawcy</li>
+            <li contenteditable="true" data-editable="1">Niedobory sprzętu komunalnego</li>
+            <li contenteditable="true" data-editable="1">Ograniczony budżet marketingowy</li>
+          </ul>
+        </div>
+        <div class="bswot-cell bo">
+          <div class="bswot-letter" style="color:var(--cyan)">O</div>
+          <ul class="bswot-items">
+            <li contenteditable="true" data-editable="1">Program FERS 2021–2027 — nowe nabory</li>
+            <li contenteditable="true" data-editable="1">Pożyczki BGK do 1 mln zł</li>
+            <li contenteditable="true" data-editable="1">Wzrost popytu na usługi opiekuńcze 8–10%/r</li>
+            <li contenteditable="true" data-editable="1">Program "Warto być PS" 2026–2028</li>
+          </ul>
+        </div>
+        <div class="bswot-cell bt">
+          <div class="bswot-letter" style="color:var(--orange)">T</div>
+          <ul class="bswot-items">
+            <li contenteditable="true" data-editable="1">Konkurencja firm komunalnych</li>
+            <li contenteditable="true" data-editable="1">Zmiany przepisów Pzp</li>
+            <li contenteditable="true" data-editable="1">Rotacja pracowników z grup wykluczonych</li>
+            <li contenteditable="true" data-editable="1">Sezonowość usług komunalnych</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats column -->
+    <div class="bento-card bc-accent">
+      <div class="bento-label">Obszarów PKD</div>
+      <div class="bento-value" data-animated="1" contenteditable="true" data-editable="1">5</div>
+      <div class="bento-sub">Komunalne · Opieka · Transport · Ekologiczne · Porządkowe</div>
+    </div>
+    <div class="bento-card bc-dark">
+      <div class="bento-label">Lat działalności</div>
+      <div class="bento-value" contenteditable="true" data-editable="1">8+</div>
+      <div class="bento-sub">Nieprzerwanej od 2017 r.</div>
+    </div>
+    <div class="bento-card bc-dark">
+      <div class="bento-label">Główny segment</div>
+      <div class="bento-value bv-sm" contenteditable="true" data-editable="1">B2G</div>
+      <div class="bento-sub">Gmina Wiązowna · OPS</div>
+    </div>
+    <div class="bento-card bc-dark">
+      <div class="bento-label">SpSoc na Mazowszu</div>
+      <div class="bento-value bv-sm" contenteditable="true" data-editable="1">180</div>
+      <div class="bento-sub">Kontekst konkurencji regionalnej</div>
+    </div>
   </div>
 
   <div class="service-grid fade-in visible" style="margin-bottom:16px" data-sgi="0">
@@ -4860,6 +5135,7 @@
 </footer>
 
 </div><!-- /app -->
+</div><!-- /main-content -->
 <!-- FLOATING ELEMENT CONTROLS (positioned absolutely over hovered WYSIWYG element) -->
 <div class="medit-el-ctrl" id="medit-el-ctrl" style="left: 274px; top: 327.5px;">
 <button class="medit-el-ctrl-btn" id="medit-ctrl-up" onclick="meditMoveEl(-1)" onmousedown="event.preventDefault()" title="Przesuń wyżej">↑</button>
@@ -5871,28 +6147,48 @@ function navScrollTo(id) {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
 }
+function sbNav(id) {
+  navScrollTo(id);
+  // close mobile sidebar after click
+  document.getElementById('sidebar').classList.remove('sb-open');
+}
 
 // ============================================================
-//  NAV ACTIVE STATE (scroll-based, reliable)
+//  SIDEBAR ACTIVE STATE (scroll-based)
 // ============================================================
 (function(){
-  const sections = Array.from(document.querySelectorAll('section[id]'));
-  const navBtns = Array.from(document.querySelectorAll('.nav-btn'));
-  const sectionIds = sections.map(s => s.id);
+  const sectionIds = ['cover','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  const sbLinks = Array.from(document.querySelectorAll('.sb-nav-link'));
 
-  function updateNav() {
-    const navHeight = 64;
+  function updateSidebar() {
     const scrollY = window.scrollY || window.pageYOffset;
     let activeIdx = 0;
+    sectionIds.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + scrollY - 80;
+      if (scrollY >= top) activeIdx = i;
+    });
+    sbLinks.forEach(b => b.classList.remove('active'));
+    if (sbLinks[activeIdx]) sbLinks[activeIdx].classList.add('active');
+  }
+
+  // also keep old .nav-btn logic alive (edit mode uses it)
+  const navBtns = Array.from(document.querySelectorAll('.nav-btn'));
+  function updateNav() {
+    const scrollY = window.scrollY || window.pageYOffset;
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    let activeIdx = 0;
     for (let i = 0; i < sections.length; i++) {
-      const top = sections[i].getBoundingClientRect().top + scrollY - navHeight - 10;
+      const top = sections[i].getBoundingClientRect().top + scrollY - 74;
       if (scrollY >= top) activeIdx = i;
     }
     navBtns.forEach(b => b.classList.remove('active'));
     if (navBtns[activeIdx]) navBtns[activeIdx].classList.add('active');
   }
 
-  window.addEventListener('scroll', updateNav, { passive: true });
+  window.addEventListener('scroll', () => { updateSidebar(); updateNav(); }, { passive: true });
+  updateSidebar();
   updateNav();
 })();
 
@@ -7367,6 +7663,11 @@ function saveToLocalStorage() {
     // Strip edit-only attributes
     clone.querySelectorAll('[data-ect]').forEach(el => el.removeAttribute('data-ect'));
     clone.querySelectorAll('[data-sort]').forEach(el => el.removeAttribute('data-sort'));
+
+    // Strip runtime UI state that must NOT persist
+    const cloneEditBar = clone.querySelector('#edit-bar');
+    if (cloneEditBar) cloneEditBar.classList.remove('visible');
+    clone.querySelectorAll('.nav-btn, .sb-nav-link').forEach(b => b.classList.remove('active'));
 
     const data = {
       ts: Date.now(),
